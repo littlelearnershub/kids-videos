@@ -1,0 +1,629 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#FFDF6B">
+<meta name="description" content="A playful video-style page where a friendly crayon draws every capital letter A to Z, with a cheerful voice, fun sounds, and celebrations. Made for toddlers learning their ABCs.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%96%8D%EF%B8%8F</text></svg>">
+<style>html,body{height:100%}body{margin:0;-webkit-text-size-adjust:100%}*{-webkit-tap-highlight-color:transparent}</style>
+<title>ABC Tracing Time!</title>
+<style>
+  :root{
+    --paper:#FFF7E0; --paper-2:#FFEFC2; --ink:#4A3B2A; --ink-soft:#8A7657;
+    --line-sky:#7FB6E8; --line-base:#E8B84B; --ghost:#D9C9A8;
+    --card:#FFFFFF; --card-edge:#F0DFB8;
+    --cherry:#E8504B; --tangerine:#F59E2D; --grass:#33A05F; --sky:#3D7FD9; --grape:#9061C9;
+    --btn:#FFDF6B; --btn-edge:#E8B84B; --btn-ink:#6B4E12;
+    --chip:#FFF1CC; --chip-on:#FFD84D;
+    --shadow:0 6px 0 rgba(160,120,40,.25);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#1F332B; --paper-2:#18291F; --ink:#F3EEDC; --ink-soft:#B9C7AE;
+      --line-sky:#6FA8D8; --line-base:#D9B85C; --ghost:#4E6355;
+      --card:#27403A; --card-edge:#15251C;
+      --cherry:#FF7B72; --tangerine:#FFB84D; --grass:#5FD08C; --sky:#6FAFFF; --grape:#C79BF0;
+      --btn:#3C5A46; --btn-edge:#14231A; --btn-ink:#FFE9A8;
+      --chip:#2E463C; --chip-on:#E8B84B;
+      --shadow:0 6px 0 rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#FFF7E0; --paper-2:#FFEFC2; --ink:#4A3B2A; --ink-soft:#8A7657;
+    --line-sky:#7FB6E8; --line-base:#E8B84B; --ghost:#D9C9A8;
+    --card:#FFFFFF; --card-edge:#F0DFB8;
+    --cherry:#E8504B; --tangerine:#F59E2D; --grass:#33A05F; --sky:#3D7FD9; --grape:#9061C9;
+    --btn:#FFDF6B; --btn-edge:#E8B84B; --btn-ink:#6B4E12;
+    --chip:#FFF1CC; --chip-on:#FFD84D;
+    --shadow:0 6px 0 rgba(160,120,40,.25);
+  }
+  :root[data-theme="dark"]{
+    --paper:#1F332B; --paper-2:#18291F; --ink:#F3EEDC; --ink-soft:#B9C7AE;
+    --line-sky:#6FA8D8; --line-base:#D9B85C; --ghost:#4E6355;
+    --card:#27403A; --card-edge:#15251C;
+    --cherry:#FF7B72; --tangerine:#FFB84D; --grass:#5FD08C; --sky:#6FAFFF; --grape:#C79BF0;
+    --btn:#3C5A46; --btn-edge:#14231A; --btn-ink:#FFE9A8;
+    --chip:#2E463C; --chip-on:#E8B84B;
+    --shadow:0 6px 0 rgba(0,0,0,.35);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--paper);
+    background-image:radial-gradient(var(--paper-2) 12%, transparent 13%);
+    background-size:34px 34px;
+    color:var(--ink);
+    font-family:"Comic Sans MS","Chalkboard SE","Comic Neue",cursive;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:14px 12px 28px; overflow-x:hidden;
+  }
+  .top{ text-align:center; margin-bottom:8px; }
+  h1{
+    font-size:clamp(1.5rem, 4.5vw, 2.4rem); margin:0; letter-spacing:.5px; text-wrap:balance;
+  }
+  h1 .r1{color:var(--cherry)} h1 .r2{color:var(--tangerine)} h1 .r3{color:var(--grass)}
+  h1 .r4{color:var(--sky)} h1 .r5{color:var(--grape)}
+  .sub{ color:var(--ink-soft); font-size:.95rem; margin-top:2px; }
+
+  .stage-wrap{ width:min(560px, 96vw); position:relative; }
+  .stage{
+    background:var(--card); border:5px solid var(--card-edge); border-radius:26px;
+    box-shadow:var(--shadow); padding:10px 10px 4px; position:relative; overflow:hidden;
+  }
+  .stage svg{ display:block; width:100%; height:auto; }
+
+  .word-banner{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    min-height:64px; font-size:clamp(1.2rem,4vw,1.7rem); font-weight:bold;
+    padding:2px 8px 10px; text-align:center;
+  }
+  .word-banner .big-emoji{ font-size:clamp(2rem,7vw,2.8rem); display:inline-block; }
+  .pop-in{ animation:popIn .5s cubic-bezier(.2,1.6,.4,1) both; }
+  @keyframes popIn{ from{transform:scale(0) rotate(-16deg); opacity:0} to{transform:scale(1) rotate(0); opacity:1} }
+  .wiggle{ animation:wiggle 1.1s ease-in-out infinite; }
+  @keyframes wiggle{ 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(5deg)} }
+
+  .star{
+    position:absolute; font-size:1.5rem; pointer-events:none; z-index:5;
+    animation:starFly 1.15s ease-out forwards;
+  }
+  @keyframes starFly{
+    0%{ transform:translate(0,0) scale(.4) rotate(0); opacity:1 }
+    100%{ transform:translate(var(--dx), var(--dy)) scale(1.25) rotate(var(--rot)); opacity:0 }
+  }
+
+  .controls{
+    display:flex; gap:12px; justify-content:center; align-items:center;
+    margin-top:16px; flex-wrap:wrap;
+  }
+  button{
+    font-family:inherit; cursor:pointer; border:0; color:var(--btn-ink);
+    background:var(--btn); border-bottom:5px solid var(--btn-edge);
+    border-radius:20px; font-size:1.5rem; line-height:1;
+    padding:14px 20px; box-shadow:var(--shadow);
+    transition:transform .08s ease;
+  }
+  button:active{ transform:translateY(3px); border-bottom-width:2px; }
+  button:focus-visible{ outline:4px solid var(--sky); outline-offset:2px; }
+  #playBtn{ font-size:2rem; padding:16px 30px; background:var(--chip-on); }
+  .toggles{ display:flex; gap:10px; margin-top:10px; justify-content:center; }
+  .toggles button{ font-size:1.1rem; padding:10px 14px; border-radius:16px; }
+  .toggles button[aria-pressed="false"]{ opacity:.45; filter:grayscale(.6); }
+
+  .caterpillar{
+    display:flex; flex-wrap:wrap; gap:6px; justify-content:center;
+    width:min(560px,96vw); margin-top:16px;
+  }
+  .chip{
+    width:34px; height:34px; border-radius:50%;
+    background:var(--chip); border:0; border-bottom:3px solid var(--card-edge);
+    font-size:1rem; padding:0; color:var(--ink); box-shadow:none;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .chip.done{ background:var(--grass); color:#fff; border-bottom-color:transparent; }
+  .chip.now{ background:var(--chip-on); color:var(--btn-ink); transform:scale(1.25); font-weight:bold; }
+
+  .overlay{
+    position:absolute; inset:0; z-index:10; border-radius:22px;
+    background:color-mix(in srgb, var(--card) 88%, transparent);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:14px; text-align:center; padding:20px;
+  }
+  .overlay.hidden{ display:none; }
+  .overlay .hello{ font-size:clamp(1.3rem,4vw,1.8rem); font-weight:bold; text-wrap:balance; }
+  .overlay .hint{ color:var(--ink-soft); font-size:1rem; max-width:36ch; }
+
+  .grown-ups{
+    margin-top:20px; max-width:56ch; text-align:center;
+    color:var(--ink-soft); font-size:.85rem; line-height:1.5; padding:0 8px;
+  }
+
+  .dance{ transform-origin:50px 60px; animation:dance .9s cubic-bezier(.3,1.5,.5,1); }
+  @keyframes dance{
+    0%{transform:scale(1)} 30%{transform:scale(1.18) rotate(-4deg)}
+    60%{transform:scale(.94) rotate(4deg)} 100%{transform:scale(1)}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .dance{ animation:none !important; }
+    .pop-in,.wiggle,.star{ animation:none !important; }
+    button{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="top">
+  <h1><span class="r1">A</span><span class="r2">B</span><span class="r3">C</span> Tracing Time! <span class="wiggle" style="display:inline-block">ðŸ–ï¸</span></h1>
+  <div class="sub">Watch the crayon draw each big letter â€” then trace it in the air with your finger!</div>
+</div>
+
+<div class="stage-wrap">
+  <div class="stage">
+    <svg id="board" viewBox="0 0 100 118" aria-label="Letter tracing board"></svg>
+    <div class="word-banner" id="banner"></div>
+    <div class="overlay" id="startOverlay">
+      <div style="font-size:3.2rem">ðŸŒž</div>
+      <div class="hello">Ready to learn your ABCs?</div>
+      <button id="startBtn">â–¶ï¸ Let's go!</button>
+      <div class="hint">A friendly crayon will show you how to write every big letter, one line at a time.</div>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <button id="prevBtn" aria-label="Previous letter">â®ï¸</button>
+  <button id="playBtn" aria-label="Play or pause">â–¶ï¸</button>
+  <button id="nextBtn" aria-label="Next letter">â­ï¸</button>
+  <button id="againBtn" aria-label="Draw this letter again">ðŸ”</button>
+</div>
+<div class="toggles">
+  <button id="voiceBtn" aria-pressed="true" aria-label="Toggle voice">ðŸ—£ï¸ Voice</button>
+  <button id="soundBtn" aria-pressed="true" aria-label="Toggle sounds">ðŸ”” Sounds</button>
+</div>
+
+<div class="caterpillar" id="caterpillar" aria-label="Choose a letter"></div>
+
+<p class="grown-ups">ðŸ’¡ <b>For grown-ups:</b> the numbers show the stroke order. Pause on any letter and let your child trace it in the air, on your palm, or on paper with a chunky crayon. Little hands learn best with big, happy movements!</p>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- letter data: stroke paths on a 100x118 grid (top line y=15, middle y=57.5, base y=100) ---------- */
+const LETTERS = [
+ {ch:"A", word:"Apple", emoji:"ðŸŽ", strokes:["M50 15 L27 100","M50 15 L73 100","M36 68 L64 68"]},
+ {ch:"B", word:"Ball", emoji:"âš½", strokes:["M30 15 L30 100","M30 15 C72 13 72 58 30 57.5","M30 57.5 C76 57 76 102 30 100"]},
+ {ch:"C", word:"Cat", emoji:"ðŸ±", strokes:["M74 32 C62 10 27 12 27 57.5 C27 103 62 105 74 83"]},
+ {ch:"D", word:"Dog", emoji:"ðŸ¶", strokes:["M30 15 L30 100","M30 15 C80 17 80 98 30 100"]},
+ {ch:"E", word:"Elephant", emoji:"ðŸ˜", strokes:["M32 15 L32 100","M32 15 L72 15","M32 57.5 L66 57.5","M32 100 L72 100"]},
+ {ch:"F", word:"Fish", emoji:"ðŸŸ", strokes:["M32 15 L32 100","M32 15 L72 15","M32 57.5 L66 57.5"]},
+ {ch:"G", word:"Grapes", emoji:"ðŸ‡", strokes:["M74 32 C62 10 27 12 27 57.5 C27 100 60 106 73 86 L73 64 L52 64"]},
+ {ch:"H", word:"Hat", emoji:"ðŸŽ©", strokes:["M30 15 L30 100","M70 15 L70 100","M30 57.5 L70 57.5"]},
+ {ch:"I", word:"Ice cream", emoji:"ðŸ¦", strokes:["M50 15 L50 100","M32 15 L68 15","M32 100 L68 100"]},
+ {ch:"J", word:"Juice", emoji:"ðŸ§ƒ", strokes:["M64 15 L64 78 C64 102 30 102 29 80"]},
+ {ch:"K", word:"Kite", emoji:"ðŸª", strokes:["M30 15 L30 100","M70 15 L30 57.5","M42 47 L70 100"]},
+ {ch:"L", word:"Lion", emoji:"ðŸ¦", strokes:["M32 15 L32 100","M32 100 L72 100"]},
+ {ch:"M", word:"Moon", emoji:"ðŸŒ™", strokes:["M25 15 L25 100","M25 15 L50 72","M50 72 L75 15","M75 15 L75 100"]},
+ {ch:"N", word:"Nest", emoji:"ðŸªº", strokes:["M30 15 L30 100","M30 15 L70 100","M70 15 L70 100"]},
+ {ch:"O", word:"Orange", emoji:"ðŸŠ", strokes:["M50 15 C16 15 16 100 50 100 C84 100 84 15 50 15"]},
+ {ch:"P", word:"Penguin", emoji:"ðŸ§", strokes:["M30 15 L30 100","M30 15 C74 14 74 61 30 60"]},
+ {ch:"Q", word:"Queen", emoji:"ðŸ‘‘", strokes:["M50 15 C16 15 16 100 50 100 C84 100 84 15 50 15","M60 78 L80 104"]},
+ {ch:"R", word:"Rainbow", emoji:"ðŸŒˆ", strokes:["M30 15 L30 100","M30 15 C74 14 74 61 30 60","M30 60 L70 100"]},
+ {ch:"S", word:"Sun", emoji:"â˜€ï¸", strokes:["M71 30 C58 8 28 14 29 35 C30 54 69 57 70 79 C71 102 38 108 27 87"]},
+ {ch:"T", word:"Train", emoji:"ðŸš‚", strokes:["M50 15 L50 100","M25 15 L75 15"]},
+ {ch:"U", word:"Umbrella", emoji:"â˜‚ï¸", strokes:["M28 15 L28 70 C28 103 72 103 72 70 L72 15"]},
+ {ch:"V", word:"Violin", emoji:"ðŸŽ»", strokes:["M27 15 L50 100","M73 15 L50 100"]},
+ {ch:"W", word:"Whale", emoji:"ðŸ³", strokes:["M20 15 L34 100 L50 42 L66 100 L80 15"]},
+ {ch:"X", word:"Xylophone", emoji:"ðŸŽµ", strokes:["M28 15 L72 100","M72 15 L28 100"]},
+ {ch:"Y", word:"Yo-yo", emoji:"ðŸª€", strokes:["M28 15 L50 57","M72 15 L50 57","M50 57 L50 100"]},
+ {ch:"Z", word:"Zebra", emoji:"ðŸ¦“", strokes:["M28 15 L72 15 L28 100 L72 100"]}
+];
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const crayonVars = ["--cherry","--tangerine","--grass","--sky","--grape"];
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const board = document.getElementById("board");
+const banner = document.getElementById("banner");
+const stage = document.querySelector(".stage");
+const NS = "http://www.w3.org/2000/svg";
+
+/* ---------- tiny sound kit ---------- */
+let audioCtx = null, soundOn = true, voiceOn = true;
+function ac(){ if(!audioCtx){ try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return audioCtx; }
+function note(freq, when, dur, vol){
+  const ctx = ac(); if(!ctx || !soundOn) return;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = "triangle"; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, ctx.currentTime + when);
+  g.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + when + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + when + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(ctx.currentTime + when); o.stop(ctx.currentTime + when + dur + 0.05);
+}
+const blip = () => note(660, 0, 0.18, 0.12);
+
+/* bendy slide-whistle "wheee!" for letter intros */
+function slideWhistle(){
+  const ctx = ac(); if(!ctx || !soundOn) return;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = "sine";
+  o.frequency.setValueAtTime(320, ctx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(950, ctx.currentTime + 0.32);
+  g.gain.setValueAtTime(0.0001, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.13, ctx.currentTime + 0.04);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(); o.stop(ctx.currentTime + 0.45);
+}
+
+/* cartoon "boing-pop!" for the emoji reveal */
+function popSound(){
+  const ctx = ac(); if(!ctx || !soundOn) return;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = "sine";
+  o.frequency.setValueAtTime(180, ctx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(720, ctx.currentTime + 0.1);
+  o.frequency.exponentialRampToValueAtTime(280, ctx.currentTime + 0.22);
+  g.gain.setValueAtTime(0.18, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.26);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(); o.stop(ctx.currentTime + 0.3);
+}
+
+/* soft crayon-on-paper scribbly noise while a stroke draws */
+let noiseBuf = null;
+function scribbleStart(){
+  const ctx = ac(); if(!ctx || !soundOn) return null;
+  if(!noiseBuf){
+    const len = ctx.sampleRate;
+    noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i] = Math.random()*2-1;
+  }
+  const src = ctx.createBufferSource(); src.buffer = noiseBuf; src.loop = true;
+  const bp = ctx.createBiquadFilter(); bp.type = "bandpass"; bp.frequency.value = 2100; bp.Q.value = 0.9;
+  const g = ctx.createGain();
+  g.gain.setValueAtTime(0.0001, ctx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.05, ctx.currentTime + 0.06);
+  // gentle wobble so it sounds like back-and-forth coloring
+  const lfo = ctx.createOscillator(), lg = ctx.createGain();
+  lfo.frequency.value = 9; lg.gain.value = 0.025;
+  lfo.connect(lg); lg.connect(g.gain);
+  src.connect(bp); bp.connect(g); g.connect(ctx.destination);
+  src.start(); lfo.start();
+  return { stop(){
+    try{
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
+      src.stop(ctx.currentTime + 0.12); lfo.stop(ctx.currentTime + 0.12);
+    }catch(e){}
+  }};
+}
+
+/* two-oscillator marimba pluck used by the melodies */
+function pluck(freq, when, dur, vol){
+  const ctx = ac(); if(!ctx || !soundOn) return;
+  note(freq, when, dur, vol);
+  note(freq*2, when, dur*0.5, vol*0.25);
+}
+/* the real ABC song (Twinkle Twinkle melody) */
+const N = {C4:262, D4:294, E4:330, F4:349, G4:392, A4:440};
+function abcIntroSong(){ // "A B C D E F G!"
+  [N.C4,N.C4,N.G4,N.G4,N.A4,N.A4,N.G4].forEach((f,i)=>pluck(f, i*0.28, 0.4, 0.16));
+}
+function abcFinaleSong(){ // "A B C D E F G, H I J K L M N O P!"
+  const seq = [N.C4,N.C4,N.G4,N.G4,N.A4,N.A4,N.G4, N.F4,N.F4,N.E4,N.E4,N.D4,N.D4,N.C4];
+  seq.forEach((f,i)=>pluck(f, i*0.26 + (i===6?0.1:0), 0.38, 0.15));
+}
+/* big happy ta-da! */
+function cheer(){
+  [523,659,784,1047].forEach((f,i)=>pluck(f, i*0.11, 0.35, 0.15));
+  [1319,1568].forEach((f,i)=>pluck(f, 0.5 + i*0.09, 0.3, 0.1));
+}
+
+/* ---------- a genuinely friendly voice ---------- */
+let chosenVoice = null;
+function pickVoice(){
+  if(!("speechSynthesis" in window)) return;
+  const vs = speechSynthesis.getVoices();
+  if(!vs.length) return;
+  // hunt for the warmest kid-friendly English voice available on this device
+  const prefs = [/aria.*natural/i, /jenny.*natural/i, /natural/i, /aria/i, /jenny/i,
+                 /google us english/i, /samantha/i, /zira/i, /female/i];
+  for(const p of prefs){
+    const v = vs.find(v => /^en/i.test(v.lang) && p.test(v.name));
+    if(v){ chosenVoice = v; return; }
+  }
+  chosenVoice = vs.find(v => /^en/i.test(v.lang)) || vs[0];
+}
+if("speechSynthesis" in window){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+
+function say(text, opts){
+  if(!voiceOn || !("speechSynthesis" in window)) return;
+  try{
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = (opts && opts.rate) || 0.92;
+    u.pitch = (opts && opts.pitch) || 1.35;  // bright and cartoonish
+    if(chosenVoice) u.voice = chosenVoice;
+    speechSynthesis.speak(u);
+  }catch(e){}
+}
+
+/* varied lines so it never sounds like a robot reading a list */
+const INTROS = [
+  c => `${c}!`,
+  c => `Here comes the letter ${c}!`,
+  c => `Wheee! It's the letter ${c}!`,
+  c => `Look look! Letter ${c}!`,
+  c => `Can you find the letter ${c}?`
+];
+const PRAISES = ["Great job!","Wowee, you did it!","Super duper!","Hooray!","Amazing!",
+                 "High five!","You're a star!","That was so good!","Yippee!"];
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+
+/* ---------- board drawing ---------- */
+function el(name, attrs){
+  const n = document.createElementNS(NS, name);
+  for(const k in attrs) n.setAttribute(k, attrs[k]);
+  return n;
+}
+function drawGuides(){
+  // kindergarten paper: solid top, dashed middle, solid base line
+  board.appendChild(el("line",{x1:4,y1:15,x2:96,y2:15,stroke:css("--line-sky"),"stroke-width":1.2,"stroke-linecap":"round"}));
+  board.appendChild(el("line",{x1:4,y1:57.5,x2:96,y2:57.5,stroke:css("--line-sky"),"stroke-width":1,"stroke-dasharray":"4 4","stroke-linecap":"round","opacity":.8}));
+  board.appendChild(el("line",{x1:4,y1:100,x2:96,y2:100,stroke:css("--line-base"),"stroke-width":1.6,"stroke-linecap":"round"}));
+}
+function crayonTip(color){
+  // a little crayon buddy with googly eyes and a smile
+  const g = el("g",{});
+  g.appendChild(el("path",{d:"M0 0 L4 -12 L9 -10 L5 1 Z", fill:color, stroke:"rgba(0,0,0,.18)","stroke-width":.5}));
+  const body = el("g",{transform:"rotate(20 6 -18)"});
+  body.appendChild(el("rect",{x:2.6,y:-26,width:7,height:15,rx:2,fill:color}));
+  body.appendChild(el("rect",{x:2.6,y:-22.5,width:7,height:2.2,fill:"rgba(255,255,255,.55)"})); // paper wrapper band
+  body.appendChild(el("circle",{cx:4.6,cy:-19.5,r:1.25,fill:"#fff"}));
+  body.appendChild(el("circle",{cx:7.6,cy:-19.5,r:1.25,fill:"#fff"}));
+  body.appendChild(el("circle",{cx:4.8,cy:-19.3,r:0.6,fill:"#333"}));
+  body.appendChild(el("circle",{cx:7.8,cy:-19.3,r:0.6,fill:"#333"}));
+  body.appendChild(el("path",{d:"M4.6 -16.6 Q6.1 -15 7.7 -16.4",fill:"none",stroke:"#fff","stroke-width":.7,"stroke-linecap":"round"}));
+  g.appendChild(body);
+  g.setAttribute("visibility","hidden");
+  return g;
+}
+function sparkleAt(x, y, color){
+  const s = el("circle",{cx:x + (Math.random()*8-4), cy:y + (Math.random()*8-4), r:1 + Math.random()*1.2,
+                         fill:color, opacity:.9});
+  s.style.transition = "opacity .45s ease, r .45s ease";
+  board.appendChild(s);
+  requestAnimationFrame(()=>{ s.style.opacity = "0"; });
+  setTimeout(()=>s.remove(), 500);
+}
+
+let letterIdx = 0, playing = false, runToken = 0, doneSet = new Set();
+
+function setupLetter(i){
+  board.innerHTML = "";
+  drawGuides();
+  const L = LETTERS[i];
+  const color = css(crayonVars[i % crayonVars.length]);
+  const paths = [];
+  // ghost dotted letter (like a tracing worksheet)
+  L.strokes.forEach(d=>{
+    board.appendChild(el("path",{d, fill:"none", stroke:css("--ghost"),"stroke-width":8,"stroke-linecap":"round","stroke-linejoin":"round","stroke-dasharray":"0.5 12","opacity":.9}));
+  });
+  // live strokes (hidden until animated), grouped so the finished letter can dance
+  const liveG = el("g",{});
+  board.appendChild(liveG);
+  L.strokes.forEach(d=>{
+    const p = el("path",{d, fill:"none", stroke:color, "stroke-width":9,"stroke-linecap":"round","stroke-linejoin":"round"});
+    liveG.appendChild(p);
+    const len = p.getTotalLength();
+    p.style.strokeDasharray = len + " " + len;
+    p.style.strokeDashoffset = String(len);
+    paths.push(p);
+  });
+  // stroke-order number badges at each stroke start
+  L.strokes.forEach((d,si)=>{
+    const probe = el("path",{d});
+    board.appendChild(probe);
+    const pt = probe.getPointAtLength(0);
+    board.removeChild(probe);
+    const bx = Math.min(Math.max(pt.x + (pt.x < 50 ? -9 : 9), 8), 92);
+    const by = Math.min(Math.max(pt.y - 6, 10), 108);
+    const g = el("g",{class:"badge"});
+    g.appendChild(el("circle",{cx:bx,cy:by,r:5.2,fill:css("--chip-on"),stroke:css("--card-edge"),"stroke-width":1}));
+    const t = el("text",{x:bx,y:by+2.4,"text-anchor":"middle","font-size":6.5,"font-family":"inherit","font-weight":"bold",fill:css("--btn-ink")});
+    t.textContent = String(si+1);
+    g.appendChild(t);
+    board.appendChild(g);
+  });
+  const tip = crayonTip(color);
+  board.appendChild(tip);
+  banner.innerHTML = `<span class="pop-in" style="color:${color}; font-size:1.6em">${L.ch}</span>`;
+  return { L, paths, tip, color, liveG };
+}
+
+function animateStroke(path, tip, token, color){
+  return new Promise(resolve=>{
+    const len = path.getTotalLength();
+    if(reduceMotion){
+      path.style.strokeDasharray = "none";
+      resolve(); return;
+    }
+    const dur = Math.min(Math.max(len * 16, 750), 2100);
+    path.style.strokeDasharray = len + " " + len;
+    path.style.strokeDashoffset = len;
+    tip.setAttribute("visibility","visible");
+    const scribble = scribbleStart();
+    let lastSparkle = 0;
+    const t0 = performance.now();
+    function done(){
+      tip.setAttribute("visibility","hidden");
+      if(scribble) scribble.stop();
+      resolve();
+    }
+    function frame(now){
+      if(token !== runToken){ done(); return; }
+      const k = Math.min((now - t0) / dur, 1);
+      const ease = k < 0.5 ? 2*k*k : 1 - Math.pow(-2*k+2,2)/2;
+      path.style.strokeDashoffset = String(len * (1 - ease));
+      const pt = path.getPointAtLength(len * ease);
+      const wiggle = Math.sin(now / 60) * 7;  // happy little crayon wobble
+      tip.setAttribute("transform", `translate(${pt.x} ${pt.y}) rotate(${wiggle})`);
+      if(now - lastSparkle > 130){ sparkleAt(pt.x, pt.y, color); lastSparkle = now; }
+      if(k < 1) requestAnimationFrame(frame);
+      else done();
+    }
+    requestAnimationFrame(frame);
+  });
+}
+
+function wait(ms, token){
+  return new Promise(r=>{
+    const id = setTimeout(()=>r(), ms);
+    // if the run is cancelled, resolve early on next tick check
+    const guard = setInterval(()=>{ if(token !== runToken){ clearTimeout(id); clearInterval(guard); r(); } }, 80);
+    setTimeout(()=>clearInterval(guard), ms+120);
+  });
+}
+
+function sprinkleStars(){
+  if(reduceMotion) return;
+  const icons = ["â­","ðŸŒŸ","âœ¨","ðŸ’›","ðŸŽˆ"];
+  for(let i=0;i<12;i++){
+    const s = document.createElement("span");
+    s.className = "star";
+    s.textContent = icons[i % icons.length];
+    s.style.left = (20 + Math.random()*60) + "%";
+    s.style.top  = (30 + Math.random()*40) + "%";
+    s.style.setProperty("--dx", (Math.random()*160-80) + "px");
+    s.style.setProperty("--dy", (-40 - Math.random()*120) + "px");
+    s.style.setProperty("--rot", (Math.random()*180-90) + "deg");
+    stage.appendChild(s);
+    setTimeout(()=>s.remove(), 1300);
+  }
+}
+
+async function playLetter(i, token){
+  const { L, paths, tip, color, liveG } = setupLetter(i);
+  refreshChips();
+  slideWhistle();
+  say(pick(INTROS)(L.ch));
+  await wait(950, token); if(token !== runToken) return;
+  for(let s=0; s<paths.length; s++){
+    note(520 + s*60, 0, 0.15, 0.1);
+    await animateStroke(paths[s], tip, token, color);
+    if(token !== runToken) return;
+    await wait(reduceMotion ? 500 : 300, token);
+    if(token !== runToken) return;
+  }
+  // celebrate! the letter does a happy dance
+  doneSet.add(i);
+  liveG.classList.add("dance");
+  popSound();
+  banner.innerHTML =
+    `<span class="pop-in" style="color:${color}; font-size:1.6em">${L.ch}</span>` +
+    `<span class="pop-in">is for ${L.word}!</span>` +
+    `<span class="big-emoji pop-in wiggle">${L.emoji}</span>`;
+  cheer(); sprinkleStars();
+  say(`${L.ch} is for ${L.word}! ${pick(PRAISES)}`);
+  refreshChips();
+  await wait(3300, token);
+}
+
+async function runShow(){
+  const token = ++runToken;
+  playing = true;
+  updatePlayBtn();
+  while(playing && token === runToken && letterIdx < LETTERS.length){
+    await playLetter(letterIdx, token);
+    if(token !== runToken || !playing) return;
+    letterIdx++;
+  }
+  if(token === runToken && letterIdx >= LETTERS.length){
+    playing = false; updatePlayBtn();
+    finale();
+  }
+}
+
+function finale(){
+  board.innerHTML = "";
+  drawGuides();
+  banner.innerHTML = `<span class="pop-in">ðŸŽ‰ Hooray! You know your ABCs! ðŸŽ‰</span>`;
+  const t = el("text",{x:50,y:70,"text-anchor":"middle","font-size":22,"font-family":"inherit","font-weight":"bold",fill:css("--tangerine")});
+  t.textContent = "A â†’ Z â­";
+  board.appendChild(t);
+  abcFinaleSong(); sprinkleStars();
+  setTimeout(sprinkleStars, 900);
+  setTimeout(sprinkleStars, 1800);
+  say("Hooray! You know all your letters! You are a superstar!");
+  letterIdx = 0;
+  refreshChips();
+}
+
+/* ---------- controls ---------- */
+const playBtn = document.getElementById("playBtn");
+function updatePlayBtn(){ playBtn.textContent = playing ? "â¸ï¸" : "â–¶ï¸"; }
+function stopShow(){ playing = false; ++runToken; try{ speechSynthesis.cancel(); }catch(e){} updatePlayBtn(); }
+
+playBtn.addEventListener("click", ()=>{
+  if(playing){ stopShow(); }
+  else { ac() && ac().resume && ac().resume(); runShow(); }
+});
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  stopShow(); letterIdx = Math.min(letterIdx+1, LETTERS.length-1); runShow();
+});
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  stopShow(); letterIdx = Math.max(letterIdx-1, 0); runShow();
+});
+document.getElementById("againBtn").addEventListener("click", ()=>{ stopShow(); runShow(); });
+
+document.getElementById("voiceBtn").addEventListener("click", e=>{
+  voiceOn = !voiceOn; e.currentTarget.setAttribute("aria-pressed", String(voiceOn));
+  if(!voiceOn){ try{ speechSynthesis.cancel(); }catch(err){} }
+});
+document.getElementById("soundBtn").addEventListener("click", e=>{
+  soundOn = !soundOn; e.currentTarget.setAttribute("aria-pressed", String(soundOn));
+});
+
+document.getElementById("startBtn").addEventListener("click", ()=>{
+  document.getElementById("startOverlay").classList.add("hidden");
+  ac() && ac().resume && ac().resume();
+  abcIntroSong();
+  say("Let's learn our A B C's!");
+  setTimeout(runShow, 1600);
+});
+
+/* ---------- caterpillar Aâ€“Z picker ---------- */
+const cat = document.getElementById("caterpillar");
+LETTERS.forEach((L,i)=>{
+  const b = document.createElement("button");
+  b.className = "chip"; b.textContent = L.ch;
+  b.setAttribute("aria-label","Letter " + L.ch);
+  b.addEventListener("click", ()=>{
+    document.getElementById("startOverlay").classList.add("hidden");
+    stopShow(); letterIdx = i; runShow();
+  });
+  cat.appendChild(b);
+});
+function refreshChips(){
+  [...cat.children].forEach((b,i)=>{
+    b.classList.toggle("done", doneSet.has(i) && i !== letterIdx);
+    b.classList.toggle("now", i === letterIdx);
+  });
+}
+
+/* first paint: show letter A ghost behind the start overlay */
+setupLetter(0);
+refreshChips();
+})();
+</script>
+
+</body>
+</html>
