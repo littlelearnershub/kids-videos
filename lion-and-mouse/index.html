@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="theme-color" content="#FFDF6B">
+<meta name="description" content="The Lion and the Mouse — the classic Aesop's fable told scene by scene with beautiful classic storybook illustrations, a friendly storyteller, and gentle sounds. A big lion, a brave little mouse, and a happy ending about how even the smallest friend can be the greatest help.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>%F0%9F%A6%81</text></svg>">
+<title>The Lion &amp; the Mouse — Story Time!</title>
+<style>
+  :root{
+    --paper:#FFF7E0; --paper-2:#FFEFC2; --ink:#4A3B2A; --ink-soft:#8A7657;
+    --card:#FFFFFF; --card-edge:#F0DFB8;
+    --cherry:#E8504B; --tangerine:#F59E2D; --grass:#33A05F; --sky:#3D7FD9; --grape:#9061C9;
+    --btn:#FFDF6B; --btn-edge:#E8B84B; --btn-ink:#6B4E12;
+    --chip:#FFF1CC; --chip-on:#FFD84D;
+    --shadow:0 6px 0 rgba(160,120,40,.25);
+    --frame:#3A2A14; --frame-2:#241809;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#20182B; --paper-2:#191223; --ink:#F3EEDC; --ink-soft:#C4B7D6;
+      --card:#2C2340; --card-edge:#191125;
+      --cherry:#FF7B72; --tangerine:#FFB84D; --grass:#5FD08C; --sky:#6FAFFF; --grape:#C79BF0;
+      --btn:#4A3A5E; --btn-edge:#231832; --btn-ink:#FFE9A8;
+      --chip:#3A2E4E; --chip-on:#E8B84B;
+      --shadow:0 6px 0 rgba(0,0,0,.4);
+      --frame:#0E0A16; --frame-2:#050308;
+    }
+  }
+  :root[data-theme="light"]{
+    --paper:#FFF7E0; --paper-2:#FFEFC2; --ink:#4A3B2A; --ink-soft:#8A7657;
+    --card:#FFFFFF; --card-edge:#F0DFB8;
+    --cherry:#E8504B; --tangerine:#F59E2D; --grass:#33A05F; --sky:#3D7FD9; --grape:#9061C9;
+    --btn:#FFDF6B; --btn-edge:#E8B84B; --btn-ink:#6B4E12; --chip:#FFF1CC; --chip-on:#FFD84D;
+    --shadow:0 6px 0 rgba(160,120,40,.25); --frame:#3A2A14; --frame-2:#241809;
+  }
+  :root[data-theme="dark"]{
+    --paper:#20182B; --paper-2:#191223; --ink:#F3EEDC; --ink-soft:#C4B7D6;
+    --card:#2C2340; --card-edge:#191125;
+    --cherry:#FF7B72; --tangerine:#FFB84D; --grass:#5FD08C; --sky:#6FAFFF; --grape:#C79BF0;
+    --btn:#4A3A5E; --btn-edge:#231832; --btn-ink:#FFE9A8; --chip:#3A2E4E; --chip-on:#E8B84B;
+    --shadow:0 6px 0 rgba(0,0,0,.4); --frame:#0E0A16; --frame-2:#050308;
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0; min-height:100%}
+  body{
+    background:var(--paper);
+    background-image:radial-gradient(var(--paper-2) 12%, transparent 13%);
+    background-size:34px 34px;
+    color:var(--ink);
+    font-family:"Comic Sans MS","Chalkboard SE","Comic Neue",cursive;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:14px 12px 30px; overflow-x:hidden; -webkit-text-size-adjust:100%;
+  }
+  .home-link{
+    position:fixed; top:12px; left:12px; z-index:50;
+    display:inline-flex; align-items:center; gap:6px;
+    font-size:1.05rem; text-decoration:none; color:var(--btn-ink);
+    background:var(--btn); border-bottom:4px solid var(--btn-edge);
+    border-radius:16px; padding:8px 14px; box-shadow:0 4px 0 rgba(160,120,40,.25);
+  }
+  .home-link:active{ transform:translateY(2px); border-bottom-width:2px; }
+  .home-link:focus-visible{ outline:4px solid var(--sky); outline-offset:2px; }
+
+  .top{ text-align:center; margin-bottom:10px; margin-top:6px; }
+  h1{ font-size:clamp(1.5rem, 5vw, 2.4rem); margin:0; letter-spacing:.4px; text-wrap:balance; }
+  h1 .r1{color:var(--tangerine)} h1 .r3{color:var(--grape)}
+  .sub{ color:var(--ink-soft); font-size:.98rem; margin-top:3px; }
+
+  .stage-wrap{ width:min(720px, 96vw); }
+  .frame{
+    background:linear-gradient(var(--frame), var(--frame-2));
+    border-radius:26px; padding:12px; box-shadow:var(--shadow), 0 2px 0 rgba(255,255,255,.12) inset;
+  }
+  .photo{
+    position:relative; width:100%; aspect-ratio:16/9; border-radius:16px; overflow:hidden;
+    background:#000; box-shadow:0 0 0 2px rgba(0,0,0,.4);
+  }
+  /* each scene = a slide: a blurred fill of the picture behind, the whole picture shown in front */
+  .photo .slide{ position:absolute; inset:0; opacity:0; transition:opacity .7s ease; }
+  .photo .slide.show{ opacity:1; }
+  .photo .slide .bg{ position:absolute; inset:0; background-size:cover; background-position:center;
+    filter:blur(16px) brightness(.5) saturate(1.1); transform:scale(1.2); }
+  .photo .slide img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; will-change:transform; }
+  /* gentle "Ken Burns" zoom so the picture feels alive, not frozen */
+  .photo .slide.show img.ken{ animation:ken 16s ease-in-out both; }
+  @keyframes ken{ 0%{transform:scale(1.0)} 100%{transform:scale(1.08)} }
+
+  .vignette{ position:absolute; inset:0; pointer-events:none; box-shadow:inset 0 0 60px rgba(0,0,0,.35); border-radius:16px; }
+  .scene-no{
+    position:absolute; top:10px; left:10px; z-index:3; color:#fff; font-size:.85rem; font-weight:bold;
+    background:rgba(0,0,0,.45); padding:4px 12px; border-radius:999px; backdrop-filter:blur(2px);
+  }
+  /* caption sits BELOW the picture so it never covers the lion or mouse */
+  .caption{
+    min-height:72px; display:flex; align-items:center; justify-content:center; text-align:center;
+    font-size:clamp(1.05rem,3.2vw,1.45rem); font-weight:bold; line-height:1.34;
+    padding:14px 10px 2px; text-wrap:balance; color:var(--ink);
+  }
+  .caption .q{ color:var(--tangerine); }
+
+  .startBtnWrap{ position:absolute; inset:0; z-index:6; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:14px; text-align:center; padding:20px;
+    background:linear-gradient(rgba(0,0,0,.15), rgba(0,0,0,.55)); }
+  .startBtnWrap.hidden{ display:none; }
+  .startBtnWrap .hello{ color:#fff; font-size:clamp(1.3rem,4vw,1.9rem); font-weight:bold; text-shadow:0 2px 10px rgba(0,0,0,.8); }
+  .bigplay{ background:rgba(255,60,60,.95); }
+
+  .controls{ display:flex; gap:12px; justify-content:center; align-items:center; margin-top:16px; flex-wrap:wrap; }
+  button{
+    font-family:inherit; cursor:pointer; border:0; color:var(--btn-ink);
+    background:var(--btn); border-bottom:5px solid var(--btn-edge);
+    border-radius:20px; font-size:1.5rem; line-height:1; padding:14px 20px;
+    box-shadow:var(--shadow); transition:transform .08s ease;
+  }
+  button:active{ transform:translateY(3px); border-bottom-width:2px; }
+  button:focus-visible{ outline:4px solid var(--sky); outline-offset:2px; }
+  #playBtn{ font-size:2rem; padding:16px 30px; background:var(--chip-on); }
+  .toggles{ display:flex; gap:10px; margin-top:10px; justify-content:center; }
+  .toggles button{ font-size:1.05rem; padding:10px 14px; border-radius:16px; }
+  .toggles button[aria-pressed="false"]{ opacity:.45; filter:grayscale(.6); }
+
+  .dots{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; width:min(720px,96vw); margin-top:16px; }
+  .dot{ width:34px; height:34px; border-radius:50%; background:var(--chip); border:0;
+    border-bottom:3px solid var(--card-edge); font-size:1rem; padding:0; color:var(--ink);
+    box-shadow:none; display:flex; align-items:center; justify-content:center; }
+  .dot.done{ background:var(--grass); color:#fff; border-bottom-color:transparent; }
+  .dot.now{ background:var(--chip-on); color:var(--btn-ink); transform:scale(1.22); font-weight:bold; }
+
+  .moral{ width:min(720px,96vw); margin-top:18px; text-align:center;
+    background:var(--card); border:4px solid var(--card-edge); border-radius:22px;
+    padding:14px 16px; box-shadow:var(--shadow); font-size:clamp(1.02rem,3vw,1.3rem); }
+  .moral b{ color:var(--tangerine); }
+
+  .grown-ups{ margin-top:16px; max-width:60ch; text-align:center; color:var(--ink-soft); font-size:.85rem; line-height:1.55; padding:0 8px; }
+  details.credits{ margin-top:14px; width:min(720px,96vw); color:var(--ink-soft); font-size:.78rem; }
+  details.credits summary{ cursor:pointer; color:var(--ink-soft); }
+  details.credits ul{ margin:8px 0 0; padding-left:18px; line-height:1.5; }
+  details.credits a{ color:var(--sky); }
+
+  .star{ position:absolute; font-size:1.5rem; pointer-events:none; z-index:5; animation:starFly 1.2s ease-out forwards; }
+  @keyframes starFly{ 0%{transform:translate(0,0) scale(.4) rotate(0); opacity:1} 100%{transform:translate(var(--dx),var(--dy)) scale(1.25) rotate(var(--rot)); opacity:0} }
+
+  @media (prefers-reduced-motion: reduce){
+    .photo img.ken{ animation:none; }
+    .photo img{ transition:none; }
+    .star{ animation:none; }
+    button{ transition:none; }
+  }
+</style>
+</head>
+<body>
+<a class="home-link" href="../" aria-label="Back to home">🏠 Home</a>
+
+<div class="top">
+  <h1><span class="r1">The Lion</span> &amp; <span class="r3">the Mouse</span> 🦁</h1>
+  <div class="sub">The classic story, told with beautiful storybook pictures — tap play and listen!</div>
+</div>
+
+<div class="stage-wrap">
+  <div class="frame">
+    <div class="photo" id="photo">
+      <div class="slide" id="slideA"><div class="bg"></div><img alt=""></div>
+      <div class="slide" id="slideB"><div class="bg"></div><img alt=""></div>
+      <div class="vignette"></div>
+      <div class="scene-no" id="sceneNo">Scene 1 of 8</div>
+      <div class="startBtnWrap" id="startWrap">
+        <div class="hello">🦁 Ready for a story? 🐭</div>
+        <button class="bigplay" id="startBtn">▶️ Tell me the story!</button>
+      </div>
+    </div>
+  </div>
+  <div class="caption" id="cap"></div>
+</div>
+
+<div class="controls">
+  <button id="prevBtn" aria-label="Previous scene">⏮️</button>
+  <button id="playBtn" aria-label="Play or pause">▶️</button>
+  <button id="nextBtn" aria-label="Next scene">⏭️</button>
+  <button id="againBtn" aria-label="Start the story again">🔁</button>
+</div>
+<div class="toggles">
+  <button id="voiceBtn" aria-pressed="true" aria-label="Toggle storyteller voice">🗣️ Voice</button>
+  <button id="soundBtn" aria-pressed="true" aria-label="Toggle sounds">🔔 Sounds</button>
+</div>
+
+<div class="dots" id="dots" aria-label="Choose a scene"></div>
+
+<div class="moral">
+  🦁💛🐭  The moral: <b>even the smallest friend can be the greatest help.</b>
+</div>
+
+<p class="grown-ups">💡 <b>For grown-ups:</b> a gentle retelling of Aesop's fable using classic public-domain
+storybook illustrations. Watch together, then ask: “Who was smaller? How did the tiny mouse help the big lion?”
+Tip: the storyteller voice sounds most natural in Chrome or Edge, which include higher-quality voices.
+You can turn the voice off and read the captions aloud yourself for the warmest story time.</p>
+
+<details class="credits">
+  <summary>🖼️ Illustration credits &amp; licenses</summary>
+  <ul id="creditList"></ul>
+  <p>All illustrations are from Wikimedia Commons and are in the public domain (classic 19th–early-20th-century book art).</p>
+</details>
+
+<script>
+(function(){
+"use strict";
+
+/* ============ the story: classic storybook illustrations + captions ============ */
+const SCENES = [
+  { img:"img/s1-sleeping.jpg",
+    cap:"Once upon a time, a big, strong lion lay fast asleep in the warm afternoon sun.",
+    say:"Once upon a time, a big, strong lion lay fast asleep in the warm afternoon sun.",
+    sound:"snore" },
+  { img:"img/s2-meet.jpg",
+    cap:"A tiny mouse came scampering by — and ran right across the sleeping lion! The lion woke with a start.",
+    say:"A tiny mouse came scampering by, and ran right across the sleeping lion. The lion woke with a start.",
+    sound:"squeak" },
+  { img:"img/s3-plea.jpg",
+    cap:"He caught the little mouse in his great paw. <span class=\"q\">“Please let me go! One day I may help you.”</span>",
+    say:"He caught the little mouse in his great big paw. Please let me go, squeaked the mouse. One day, I may help you.",
+    sound:"squeak" },
+  { img:"img/s4-release.jpg",
+    cap:"The lion laughed. <span class=\"q\">“You? Help me?”</span> But he had a kind heart, so he let the little mouse go.",
+    say:"The lion laughed. You? Help me? But the lion had a kind heart. So he lifted his paw, and let the little mouse go.",
+    sound:"chuckle" },
+  { img:"img/s5-net.jpg",
+    cap:"A few days later, hunters trapped the lion in a strong net. He roared and roared, but he could not break free.",
+    say:"A few days later, some hunters trapped the lion in a strong net. He roared, and roared, and roared. But he could not break free.",
+    sound:"roar" },
+  { img:"img/s5-net.jpg",
+    cap:"The little mouse heard the roar and came running. Nibble, nibble, nibble — she chewed through the ropes!",
+    say:"The little mouse heard the roar, and came running as fast as she could. Then she began to nibble, and nibble, and nibble, right through the ropes.",
+    sound:"nibble" },
+  { img:"img/s2-meet.jpg",
+    cap:"At last the ropes broke and the lion was free! <span class=\"q\">“Thank you, little friend,”</span> he said. “You were right after all.”",
+    say:"At last the ropes broke, and the great lion was free. Thank you, my little friend, he said. You were right after all.",
+    sound:"cheer" },
+  { img:"img/s4-release.jpg",
+    cap:"From that day on, the lion and the mouse were the very best of friends. Even the smallest friend can be the greatest help.",
+    say:"From that day on, the lion and the mouse were the very best of friends. And they both learned that even the smallest friend, can be the greatest help. The end.",
+    sound:"twinkle" }
+];
+
+/* illustration credits (shown in the collapsible credits panel) — all public domain */
+const CREDITS = [
+  ["Sleeping lion, lion &amp; mice, and the release","Aunt Louisa's Oft Told Tales (Victorian chromolithograph)","Public domain","https://commons.wikimedia.org/wiki/File:Valentine,_Laura_-_Aunt_Louisa%27s_Oft_Told_Tales_-_0045.jpg"],
+  ["The lion and the pleading mouse","Paul Bransom, frontispiece to \"An Argosy of Fables\" (1921)","Public domain","https://commons.wikimedia.org/wiki/File:Frontispiece,_An_Argosy_of_Fables.jpg"],
+  ["The lion caught in the net","Milo Winter, \"The Aesop for Children\" (1919)","Public domain","https://commons.wikimedia.org/wiki/File:The_Lion_and_the_Mouse_-_Project_Gutenberg_etext_19994.jpg"]
+];
+
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const photo = document.getElementById("photo");
+const slides = [document.getElementById("slideA"), document.getElementById("slideB")];
+const capEl = document.getElementById("cap");
+const sceneNoEl = document.getElementById("sceneNo");
+
+/* preload every picture so scene changes are instant */
+SCENES.forEach(s=>{ const im = new Image(); im.src = s.img; });
+
+/* ============ sound kit (Web Audio) ============ */
+let audioCtx = null, soundOn = true, voiceOn = true;
+function ac(){ if(!audioCtx){ try{ audioCtx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return audioCtx; }
+function tone(type, freq, when, dur, vol){
+  const ctx = ac(); if(!ctx || !soundOn) return;
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, ctx.currentTime + when);
+  g.gain.exponentialRampToValueAtTime(vol, ctx.currentTime + when + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + when + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(ctx.currentTime + when); o.stop(ctx.currentTime + when + dur + 0.05);
+}
+function pluck(f, when, dur, vol){ tone("triangle", f, when, dur, vol); tone("sine", f*2, when, dur*0.5, vol*0.25); }
+let noiseBuf = null;
+function noise(){ const ctx=ac(); if(!noiseBuf){ const len=ctx.sampleRate; noiseBuf=ctx.createBuffer(1,len,ctx.sampleRate); const d=noiseBuf.getChannelData(0); for(let i=0;i<len;i++) d[i]=Math.random()*2-1; } return noiseBuf; }
+function squeak(){ const ctx=ac(); if(!ctx||!soundOn) return; const o=ctx.createOscillator(),g=ctx.createGain();
+  o.type="sine"; o.frequency.setValueAtTime(900,ctx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(1650,ctx.currentTime+0.09);
+  o.frequency.exponentialRampToValueAtTime(1200,ctx.currentTime+0.18);
+  g.gain.setValueAtTime(0.14,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.2);
+  o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.24); }
+function roar(){ const ctx=ac(); if(!ctx||!soundOn) return;
+  const o=ctx.createOscillator(),g=ctx.createGain(),lfo=ctx.createOscillator(),lg=ctx.createGain();
+  o.type="sawtooth"; o.frequency.setValueAtTime(70,ctx.currentTime);
+  o.frequency.exponentialRampToValueAtTime(150,ctx.currentTime+0.25);
+  o.frequency.exponentialRampToValueAtTime(90,ctx.currentTime+0.9);
+  lfo.frequency.value=22; lg.gain.value=14; lfo.connect(lg); lg.connect(o.frequency);
+  g.gain.setValueAtTime(0.0001,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.22,ctx.currentTime+0.12);
+  g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+1.0);
+  const src=ctx.createBufferSource(); src.buffer=noise(); src.loop=true;
+  const bp=ctx.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=500; bp.Q.value=.7;
+  const ng=ctx.createGain(); ng.gain.value=0.05; src.connect(bp); bp.connect(ng); ng.connect(ctx.destination);
+  o.connect(g); g.connect(ctx.destination); o.start(); lfo.start(); src.start();
+  o.stop(ctx.currentTime+1.05); lfo.stop(ctx.currentTime+1.05); src.stop(ctx.currentTime+1.0); }
+function snore(){ // sleepy in-and-out rumble (repeats a few times)
+  const ctx=ac(); if(!ctx||!soundOn) return;
+  const puff=(t)=>{ const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type="sine"; o.frequency.setValueAtTime(70,ctx.currentTime+t);
+    o.frequency.linearRampToValueAtTime(150,ctx.currentTime+t+0.5);
+    o.frequency.linearRampToValueAtTime(60,ctx.currentTime+t+1.0);
+    g.gain.setValueAtTime(0.0001,ctx.currentTime+t); g.gain.linearRampToValueAtTime(0.1,ctx.currentTime+t+0.4);
+    g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+t+1.1);
+    o.connect(g); g.connect(ctx.destination); o.start(ctx.currentTime+t); o.stop(ctx.currentTime+t+1.2); };
+  puff(0); puff(1.6); puff(3.2); }
+function nibble(){ for(let i=0;i<12;i++) tone("square",1400+ (i%2?120:0), i*0.14, 0.03, 0.06); }
+function chuckle(){ [330,300,340,300,320].forEach((f,i)=>pluck(f,i*0.16,0.16,0.12)); }
+function snap(){ const ctx=ac(); if(!ctx||!soundOn) return; const src=ctx.createBufferSource(); src.buffer=noise();
+  const bp=ctx.createBiquadFilter(); bp.type="bandpass"; bp.frequency.value=2200; bp.Q.value=1.2;
+  const g=ctx.createGain(); g.gain.setValueAtTime(0.25,ctx.currentTime); g.gain.exponentialRampToValueAtTime(0.0001,ctx.currentTime+0.14);
+  src.connect(bp); bp.connect(g); g.connect(ctx.destination); src.start(); src.stop(ctx.currentTime+0.16); pluck(880,0.02,0.2,0.12); }
+function cheer(){ snap(); [523,659,784,1047].forEach((f,i)=>pluck(f,0.15+i*0.11,0.35,0.15)); [1319,1568].forEach((f,i)=>pluck(f,0.6+i*0.09,0.3,0.1)); }
+function twinkle(){ [392,523,659,784,1047].forEach((f,i)=>pluck(f,i*0.12,0.3,0.12)); }
+const SOUND = { snore, squeak, roar, nibble, chuckle, cheer, twinkle };
+
+function sprinkleStars(icons){
+  if(reduceMotion) return;
+  icons = icons || ["⭐","🌟","✨","💛","🎈"];
+  for(let i=0;i<10;i++){ const s=document.createElement("span"); s.className="star"; s.textContent=icons[i%icons.length];
+    s.style.left=(20+Math.random()*60)+"%"; s.style.top=(20+Math.random()*40)+"%";
+    s.style.setProperty("--dx",(Math.random()*160-80)+"px"); s.style.setProperty("--dy",(-40-Math.random()*120)+"px");
+    s.style.setProperty("--rot",(Math.random()*180-90)+"deg"); photo.appendChild(s); setTimeout(()=>s.remove(),1300); }
+}
+
+/* ============ storyteller voice ============ */
+const synthOK = "speechSynthesis" in window;
+let chosenVoice = null;
+function pickVoice(){
+  if(!synthOK) return; const vs = speechSynthesis.getVoices(); if(!vs.length) return;
+  const prefs = [
+    /(aria|jenny|libby|sonia|emma|ava|michelle).*natural/i, /natural/i, /neural/i, /online/i,
+    /google uk english female/i, /google us english/i, /google/i,
+    /aria/i, /jenny/i, /samantha/i, /serena/i, /zira/i, /hazel/i, /susan/i, /female/i
+  ];
+  for(const p of prefs){ const v = vs.find(v => /^en/i.test(v.lang) && p.test(v.name)); if(v){ chosenVoice=v; return; } }
+  chosenVoice = vs.find(v => /^en/i.test(v.lang)) || vs[0];
+}
+if(synthOK){ pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+
+let keepAlive = null;
+function startKeepAlive(){ if(keepAlive) return; keepAlive = setInterval(()=>{ try{ if(speechSynthesis.speaking){ speechSynthesis.pause(); speechSynthesis.resume(); } }catch(e){} }, 6000); }
+function stopKeepAlive(){ if(keepAlive){ clearInterval(keepAlive); keepAlive=null; } }
+
+/* speak a sentence at a time so long lines are never cut off mid-word */
+function speakStory(text, token, onDone){
+  if(!voiceOn || !synthOK){ if(onDone) onDone(); return; }
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const chunks = text.match(/[^.!?]+[.!?]*/g) || [text];
+  let i = 0;
+  startKeepAlive();
+  function next(){
+    if(token !== runToken){ stopKeepAlive(); return; }
+    if(i >= chunks.length){ stopKeepAlive(); if(onDone) onDone(); return; }
+    const u = new SpeechSynthesisUtterance(chunks[i++].trim());
+    u.lang = "en-US";
+    u.rate = 0.92; u.pitch = 1.02;                 // natural storyteller cadence
+    if(chosenVoice) u.voice = chosenVoice;
+    u.onend = next;
+    u.onerror = next;
+    speechSynthesis.speak(u);
+  }
+  next();
+}
+
+/* ============ scene player ============ */
+let sceneIdx = 0, playing = false, runToken = 0, doneSet = new Set(), front = 0;
+
+function render(i){
+  const sc = SCENES[i];
+  const cur = slides[front], nxt = slides[1-front];
+  const im = nxt.querySelector("img");
+  im.src = sc.img;
+  nxt.querySelector(".bg").style.backgroundImage = 'url("' + sc.img + '")';
+  im.classList.remove("ken"); void im.offsetWidth;      // restart ken-burns
+  if(!reduceMotion) im.classList.add("ken");
+  nxt.classList.add("show");
+  cur.classList.remove("show");
+  front = 1-front;
+  capEl.innerHTML = sc.cap;
+  sceneNoEl.textContent = "Scene " + (i+1) + " of " + SCENES.length;
+  refreshDots();
+}
+
+function playSound(i){ const fn = SOUND[SCENES[i].sound]; if(fn) fn(); }
+
+function narrateWait(i, token){
+  return new Promise(res=>{
+    const sc = SCENES[i];
+    const text = sc.say || sc.cap.replace(/<[^>]+>/g,"");
+    const words = text.split(/\s+/).length;
+    const readMs = Math.min(Math.max(words*370 + 2600, 5200), 17000);
+    let done = false;
+    const finish = ()=>{ if(done) return; done=true; clearInterval(guard); clearTimeout(safety); res(); };
+    const guard = setInterval(()=>{ if(token !== runToken) finish(); }, 120);
+    const safety = setTimeout(finish, readMs + 9000); // never hang forever
+    if(voiceOn && synthOK){
+      speakStory(text, token, ()=> setTimeout(()=>{ if(token===runToken) finish(); }, 850));
+    } else {
+      setTimeout(()=>{ if(token===runToken) finish(); }, readMs);
+    }
+  });
+}
+
+function wait(ms, token){ return new Promise(r=>{ const id=setTimeout(r,ms);
+  const g=setInterval(()=>{ if(token!==runToken){ clearTimeout(id); clearInterval(g); r(); } },100);
+  setTimeout(()=>clearInterval(g), ms+150); }); }
+
+async function runFrom(i){
+  const token = ++runToken; playing = true; updatePlayBtn();
+  for(; i < SCENES.length; i++){
+    if(token !== runToken || !playing) return;
+    sceneIdx = i; render(i); doneSet.add(i); refreshDots();
+    playSound(i);
+    if(SCENES[i].sound === "cheer" || SCENES[i].sound === "twinkle") sprinkleStars();
+    await narrateWait(i, token);
+    if(token !== runToken || !playing) return;
+    await wait(500, token);
+  }
+  playing = false; updatePlayBtn();
+}
+
+const playBtn = document.getElementById("playBtn");
+function updatePlayBtn(){ playBtn.textContent = playing ? "⏸️" : "▶️"; }
+function stopShow(){ playing = false; ++runToken; stopKeepAlive(); try{ speechSynthesis.cancel(); }catch(e){} updatePlayBtn(); }
+
+playBtn.addEventListener("click", ()=>{ if(playing){ stopShow(); } else { ac() && ac().resume && ac().resume(); runFrom(sceneIdx); } });
+document.getElementById("nextBtn").addEventListener("click", ()=>{ stopShow(); sceneIdx=Math.min(sceneIdx+1,SCENES.length-1); runFrom(sceneIdx); });
+document.getElementById("prevBtn").addEventListener("click", ()=>{ stopShow(); sceneIdx=Math.max(sceneIdx-1,0); runFrom(sceneIdx); });
+document.getElementById("againBtn").addEventListener("click", ()=>{ stopShow(); sceneIdx=0; doneSet.clear(); runFrom(0); });
+document.getElementById("voiceBtn").addEventListener("click", e=>{ voiceOn=!voiceOn; e.currentTarget.setAttribute("aria-pressed",String(voiceOn)); if(!voiceOn){ stopKeepAlive(); try{ speechSynthesis.cancel(); }catch(err){} } });
+document.getElementById("soundBtn").addEventListener("click", e=>{ soundOn=!soundOn; e.currentTarget.setAttribute("aria-pressed",String(soundOn)); });
+
+document.getElementById("startBtn").addEventListener("click", ()=>{
+  document.getElementById("startWrap").classList.add("hidden");
+  ac() && ac().resume && ac().resume();
+  twinkle();
+  runFrom(0);
+});
+
+/* scene picker dots */
+const dotsWrap = document.getElementById("dots");
+const DOT_ICONS = ["😴","🐭","🐾","😸","🥅","🧀","🎉","💛"];
+SCENES.forEach((sc,i)=>{ const b=document.createElement("button"); b.className="dot"; b.textContent=DOT_ICONS[i]||"•";
+  b.setAttribute("aria-label","Scene "+(i+1));
+  b.addEventListener("click", ()=>{ document.getElementById("startWrap").classList.add("hidden"); stopShow(); sceneIdx=i; runFrom(i); });
+  dotsWrap.appendChild(b); });
+function refreshDots(){ [...dotsWrap.children].forEach((b,i)=>{ b.classList.toggle("done", doneSet.has(i)&&i!==sceneIdx); b.classList.toggle("now", i===sceneIdx); }); }
+
+/* build credits list */
+const cl = document.getElementById("creditList");
+CREDITS.forEach(c=>{ const li=document.createElement("li");
+  li.innerHTML = `${c[0]} — <a href="${c[3]}" target="_blank" rel="noopener">${c[1]}</a>, ${c[2]}`; cl.appendChild(li); });
+
+/* first paint: show scene 1 photo behind the start button */
+render(0);
+})();
+</script>
+
+</body>
+</html>
