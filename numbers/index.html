@@ -254,10 +254,24 @@ function buildNumber(n){
   }
   return strokes;
 }
-// map a point in a digit's local coords to board coords (x widened by WX)
-function mapPt(p, cx, f){ return { x: cx + f*WX*(p.x - CX0), y: MIDY + f*(p.y - MIDY) }; }
-// the transform applied to each digit's path
-function digitTransform(cx, f){ return `translate(${cx} ${MIDY}) scale(${f*WX} ${f}) translate(${-CX0} ${-MIDY})`; }
+// map one point from a digit's local coords to board coords (x widened by WX)
+function tf(x, y, cx, f){ return [ cx + f*WX*(x - CX0), MIDY + f*(y - MIDY) ]; }
+// bake the placement into the path data itself, so strokes live in plain board
+// coordinates — a normal stroke-width and dash reveal then behave exactly like
+// the alphabets (no transform + non-scaling-stroke mismatch that broke the trace)
+function transformPath(d, cx, f){
+  const tokens = d.match(/[MLCZ]|-?\d*\.?\d+/gi) || [];
+  const out = [];
+  for(let i=0; i<tokens.length; ){
+    const t = tokens[i];
+    if(/[MLCZ]/i.test(t)){ out.push(t); i++; }
+    else {
+      const [nx, ny] = tf(parseFloat(tokens[i]), parseFloat(tokens[i+1]), cx, f);
+      out.push(nx.toFixed(2), ny.toFixed(2)); i += 2;
+    }
+  }
+  return out.join(" ");
+}
 
 /* ---------- number words 0..100 ---------- */
 const ONES=["zero","one","two","three","four","five","six","seven","eight","nine","ten",
@@ -347,13 +361,34 @@ function pickVoice(){
   chosenVoice=vs.find(v=>/^en/i.test(v.lang))||vs[0];
 }
 if("speechSynthesis" in window){ pickVoice(); speechSynthesis.onvoiceschanged=pickVoice; }
+function mkUtter(text,opts){
+  const u=new SpeechSynthesisUtterance(text); u.lang="en-US";
+  u.rate=(opts&&opts.rate)||0.9; u.pitch=(opts&&opts.pitch)||1.35;
+  if(chosenVoice) u.voice=chosenVoice; return u;
+}
+// speak WITHOUT cancelling — cancel-then-speak drops words on Chrome, and
+// cancelling between numbers is what cut the narration off mid-word
 function say(text,opts){
   if(!voiceOn||!("speechSynthesis" in window)) return;
-  try{ speechSynthesis.cancel();
-    const u=new SpeechSynthesisUtterance(text); u.lang="en-US";
-    u.rate=(opts&&opts.rate)||0.92; u.pitch=(opts&&opts.pitch)||1.35;
-    if(chosenVoice) u.voice=chosenVoice; speechSynthesis.speak(u);
-  }catch(e){}
+  try{ speechSynthesis.resume(); speechSynthesis.speak(mkUtter(text,opts)); }catch(e){}
+}
+// hard stop — only on real interruptions (pause, navigation, range change)
+function hush(){ try{ speechSynthesis.cancel(); }catch(e){} }
+// speak and resolve when the words actually finish, so a number stays on screen
+// until its narration is done (prevents the next number cutting it off)
+function sayWait(text, token, opts){
+  return new Promise(resolve=>{
+    if(!voiceOn||!("speechSynthesis" in window)){ resolve(); return; }
+    let done=false; const finish=()=>{ if(done) return; done=true; clearInterval(guard); resolve(); };
+    let guard;
+    try{
+      const u=mkUtter(text,opts); u.onend=finish; u.onerror=finish;
+      speechSynthesis.resume(); speechSynthesis.speak(u);
+      setTimeout(finish, Math.min(11000, 900 + text.length*80)); // fallback if onend never fires
+    }catch(e){ finish(); return; }
+    guard=setInterval(()=>{ if(token!==runToken) finish(); }, 100); // bail if interrupted
+    setTimeout(()=>clearInterval(guard), 11500);
+  });
 }
 const INTROS=[n=>`${n}!`, n=>`Here comes ${n}!`, n=>`Wheee! Number ${n}!`, n=>`Look, it's ${n}!`, n=>`Can you find ${n}?`];
 const PRAISES=["Great job!","Wowee!","Super duper!","Hooray!","Amazing!","High five!","You're a star!","Yippee!","Well counted!"];
@@ -391,32 +426,33 @@ function setupNumber(n){
   board.innerHTML="";
   drawGuides();
   const color=css(crayonVars[n % crayonVars.length]);
-  const strokes=buildNumber(n);
-  // ghost
+  const strokes=buildNumber(n).map(st=>({ d: transformPath(st.d, st.cx, st.f), cx: st.cx }));
+  // ghost (light dotted worksheet outline)
   strokes.forEach(st=>{
-    board.appendChild(el("path",{d:st.d, transform:digitTransform(st.cx, st.f),
-      fill:"none", stroke:css("--ghost"), "stroke-width":8, "vector-effect":"non-scaling-stroke",
+    board.appendChild(el("path",{d:st.d,
+      fill:"none", stroke:css("--ghost"), "stroke-width":8,
       "stroke-linecap":"round","stroke-linejoin":"round","stroke-dasharray":"0.5 12","opacity":.9}));
   });
-  // live (hidden)
+  // live strokes (hidden until traced) — board-space, so the reveal is continuous
   const liveG=el("g",{}); board.appendChild(liveG);
   const paths=[];
   strokes.forEach(st=>{
-    const p=el("path",{d:st.d, transform:digitTransform(st.cx, st.f),
-      fill:"none", stroke:color, "stroke-width":9, "vector-effect":"non-scaling-stroke",
+    const p=el("path",{d:st.d,
+      fill:"none", stroke:color, "stroke-width":9,
       "stroke-linecap":"round","stroke-linejoin":"round"});
     liveG.appendChild(p);
     const len=p.getTotalLength();
     p.style.strokeDasharray=len+" "+len; p.style.strokeDashoffset=String(len);
-    paths.push({p, st, len});
+    paths.push({p, len});
   });
-  // stroke-order badges
+  // stroke-order badges at each stroke's start point
   strokes.forEach((st,si)=>{
     const probe=el("path",{d:st.d}); board.appendChild(probe);
-    const lp=probe.getPointAtLength(0); board.removeChild(probe);
-    const m=mapPt(lp, st.cx, st.f);
-    const bx=Math.min(Math.max(m.x+(lp.x<CX0?-8:8),8),92);
-    const by=Math.min(Math.max(m.y-6,10),108);
+    const lp=probe.getPointAtLength(0);
+    const mid=probe.getPointAtLength(probe.getTotalLength()*0.5);
+    board.removeChild(probe);
+    const bx=Math.min(Math.max(lp.x+(lp.x<mid.x?-8:8),8),92);
+    const by=Math.min(Math.max(lp.y-6,10),108);
     const g=el("g",{});
     g.appendChild(el("circle",{cx:bx,cy:by,r:5,fill:css("--chip-on"),stroke:css("--card-edge"),"stroke-width":1}));
     const t=el("text",{x:bx,y:by+2.3,"text-anchor":"middle","font-size":6,"font-family":"inherit","font-weight":"bold",fill:css("--btn-ink")});
@@ -429,22 +465,21 @@ function setupNumber(n){
 
 function animateStroke(item, tip, token, color){
   return new Promise(resolve=>{
-    const { p, st, len } = item;
+    const { p, len } = item;
     if(reduceMotion){ p.style.strokeDasharray="none"; resolve(); return; }
-    const dur=Math.min(Math.max(len*st.f*30, 1400), 4200);
+    const dur=Math.min(Math.max(len*30, 1400), 4200);
     tip.setAttribute("visibility","visible");
     const scribble=scribbleStart(); let lastSp=0; const t0=performance.now();
-    function done(){ tip.setAttribute("visibility","hidden"); if(scribble) scribble.stop(); resolve(); }
+    function done(){ p.style.strokeDashoffset="0"; tip.setAttribute("visibility","hidden"); if(scribble) scribble.stop(); resolve(); }
     function frame(now){
       if(token!==runToken){ done(); return; }
       const k=Math.min((now-t0)/dur,1);
       const ease=k<0.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
       p.style.strokeDashoffset=String(len*(1-ease));
       const lp=p.getPointAtLength(len*ease);
-      const m=mapPt(lp, st.cx, st.f);
       const wob=Math.sin(now/60)*7;
-      tip.setAttribute("transform",`translate(${m.x} ${m.y}) rotate(${wob})`);
-      if(now-lastSp>130){ sparkleAt(m.x,m.y,color); lastSp=now; }
+      tip.setAttribute("transform",`translate(${lp.x} ${lp.y}) rotate(${wob})`);
+      if(now-lastSp>130){ sparkleAt(lp.x,lp.y,color); lastSp=now; }
       if(k<1) requestAnimationFrame(frame); else done();
     }
     requestAnimationFrame(frame);
@@ -495,16 +530,17 @@ async function playNumber(n, token){
     `<span class="pop-in" style="text-transform:capitalize">${words(n)}!</span>`+
     countHtml;
   cheer(); sprinkleStars();
-  // spoken: number, word, and count aloud for small numbers
-  if(n>=1 && n<=10){
-    say(`${n}. ${words(n)}. Let's count! ` + Array.from({length:n},(_,i)=>i+1).join(", ") + `. ${pick(PRAISES)}`);
-    if(!reduceMotion) for(let i=0;i<n;i++) setTimeout(()=>countBlip(i), 900 + i*380);
-  } else {
-    say(`${n}. ${words(n)}! ${pick(PRAISES)}`);
-  }
   refreshChips();
-  const dwell = (n>=1&&n<=12) ? 2600 + n*260 : 3000;
-  await wait(dwell, token);
+  // spoken celebration — count aloud for small numbers; hold until it finishes
+  let speech;
+  if(n>=1 && n<=10){
+    speech = `${words(n)}! Let's count. ` + Array.from({length:n},(_,i)=>i+1).join(", ") + `. ${pick(PRAISES)}`;
+    if(!reduceMotion) for(let i=0;i<n;i++) setTimeout(()=>countBlip(i), 1150 + i*430);
+  } else {
+    speech = `${n}. ${words(n)}! ${pick(PRAISES)}`;
+  }
+  await sayWait(speech, token);
+  await wait(reduceMotion?400:700, token);
 }
 
 async function runShow(){
