@@ -87,7 +87,7 @@
     background:var(--card); border:5px solid var(--card-edge); border-radius:26px;
     box-shadow:var(--shadow); padding:10px 10px 4px; position:relative; overflow:hidden;
   }
-  .stage svg{ display:block; width:100%; height:auto; }
+  .stage svg{ display:block; width:100%; height:auto; touch-action:none; }
 
   .word-banner{
     display:flex; align-items:center; justify-content:center; gap:10px;
@@ -199,11 +199,12 @@
 <div class="toggles">
   <button id="voiceBtn" aria-pressed="true" aria-label="Toggle voice">🗣️ Voice</button>
   <button id="soundBtn" aria-pressed="true" aria-label="Toggle sounds">🔔 Sounds</button>
+  <button id="practiceBtn" aria-pressed="true" aria-label="Toggle My Turn tracing">✏️ My Turn</button>
 </div>
 
 <div class="caterpillar" id="caterpillar" aria-label="Choose a letter"></div>
 
-<p class="grown-ups">💡 <b>For grown-ups:</b> the numbers show the stroke order. Pause on any letter and let your child trace it in the air, on your palm, or on paper with a chunky crayon. Little hands learn best with big, happy movements!</p>
+<p class="grown-ups">💡 <b>For grown-ups:</b> after the crayon draws each letter, <b>✏️ My Turn</b> lets your child trace it themselves — right on the screen with a finger. The letter colors in as they go, and the numbers show where to start. Turn <b>My Turn</b> off to just watch A–Z. Little hands learn best with big, happy movements!</p>
 
 <script>
 (function(){
@@ -479,7 +480,7 @@ function sparkleAt(x, y, color){
   setTimeout(()=>s.remove(), 500);
 }
 
-let letterIdx = 0, playing = false, runToken = 0, doneSet = new Set();
+let letterIdx = 0, playing = false, runToken = 0, doneSet = new Set(), practiceOn = true;
 
 function setupLetter(i){
   board.innerHTML = "";
@@ -584,6 +585,98 @@ function sprinkleStars(){
   }
 }
 
+/* ---------- "My Turn": let the child trace the letter with a finger ---------- */
+function buildSamples(paths){
+  const samples = [];
+  paths.forEach((p, si)=>{
+    const len = p.getTotalLength();
+    for(let l=0; l<=len; l+=4){ const pt = p.getPointAtLength(l); samples.push({x:pt.x, y:pt.y, si, l, hit:false}); }
+    const e = p.getPointAtLength(len); samples.push({x:e.x, y:e.y, si, l:len, hit:false});
+  });
+  return samples;
+}
+function traceTurn(i, token){
+  return new Promise(resolve=>{
+    const { L, paths, tip, color } = setupLetter(i);
+    tip.setAttribute("visibility","hidden");           // no crayon buddy — the child is the crayon now
+    const perStroke = paths.map(p=>({ len:p.getTotalLength(), maxL:0 }));
+    const samples = buildSamples(paths);
+    const total = samples.length;
+    let hits = 0, drawing = false, trail = null, lastBlip = 0, finished = false, done = false;
+
+    banner.innerHTML = `<span class="pop-in">✏️ Your turn! Trace the <b style="color:${color}">${L.ch}</b> with your finger</span>`;
+    say(`Now you try. Trace the ${L.ch} with your finger.`);
+
+    const ctrl = new AbortController();
+    const ptSVG = board.createSVGPoint();
+    function toSVG(e){
+      const m = board.getScreenCTM(); if(!m) return null;
+      ptSVG.x = e.clientX; ptSVG.y = e.clientY;
+      const p = ptSVG.matrixTransform(m.inverse());
+      return { x:p.x, y:p.y };
+    }
+    function process(x, y){
+      const R2 = 8*8;                                   // big, forgiving hit radius for little fingers
+      let newHit = false;
+      for(const s of samples){
+        if(s.hit) continue;
+        const dx = s.x - x, dy = s.y - y;
+        if(dx*dx + dy*dy <= R2){
+          s.hit = true; hits++; newHit = true;
+          if(s.l > perStroke[s.si].maxL) perStroke[s.si].maxL = s.l;
+          sparkleAt(s.x, s.y, color);
+        }
+      }
+      if(newHit){
+        // colour in each stroke up to the furthest point the child has reached
+        perStroke.forEach((ps, si)=>{ paths[si].style.strokeDashoffset = String(Math.max(ps.len - ps.maxL, 0)); });
+        const now = performance.now();
+        if(now - lastBlip > 90){ blip(); lastBlip = now; }
+        if(!finished && hits/total >= 0.62){ finished = true; success(); }
+      }
+    }
+    function addTrailPoint(x, y){
+      if(!trail){
+        trail = el("path",{d:`M${x} ${y}`, fill:"none", stroke:color, "stroke-width":6,
+                           "stroke-linecap":"round","stroke-linejoin":"round", opacity:.5});
+        board.appendChild(trail);
+      } else {
+        trail.setAttribute("d", trail.getAttribute("d") + ` L${x} ${y}`);
+      }
+    }
+    function onDown(e){ if(!e.isPrimary) return; e.preventDefault(); drawing = true; trail = null;
+      try{ board.setPointerCapture(e.pointerId); }catch(_){}
+      const p = toSVG(e); if(p){ addTrailPoint(p.x, p.y); process(p.x, p.y); } }
+    function onMove(e){ if(!drawing || !e.isPrimary) return; e.preventDefault();
+      const p = toSVG(e); if(p){ addTrailPoint(p.x, p.y); process(p.x, p.y); } }
+    function onUp(e){ if(!e.isPrimary) return; drawing = false; trail = null; }
+    const opt = { signal:ctrl.signal };
+    board.addEventListener("pointerdown", onDown, opt);
+    board.addEventListener("pointermove", onMove, opt);
+    board.addEventListener("pointerup", onUp, opt);
+    board.addEventListener("pointercancel", onUp, opt);
+
+    function cleanup(){ if(done) return; done = true; ctrl.abort(); clearInterval(guard); }
+    // let Next / Prev / Play-pause, or turning "My Turn" off, skip the tracing
+    const guard = setInterval(()=>{ if(token !== runToken || !practiceOn){ cleanup(); resolve(); } }, 120);
+
+    async function success(){
+      cleanup();
+      paths.forEach(p=> p.style.strokeDashoffset = "0");   // fill the whole letter in
+      banner.innerHTML = `<span class="pop-in" style="color:${color}; font-size:1.4em">${L.ch}</span>` +
+                         `<span class="pop-in">🎉 You did it! 🎉</span>`;
+      popSound(); cheer(); sprinkleStars();
+      if(voiceOn && ("speechSynthesis" in window)){
+        await sayWait(`You traced the letter ${L.ch}! ${pick(PRAISES)}`, token);
+        await wait(500, token);
+      } else {
+        await wait(1600, token);
+      }
+      resolve();
+    }
+  });
+}
+
 async function playLetter(i, token){
   const { L, paths, tip, color, liveG } = setupLetter(i);
   refreshChips();
@@ -616,6 +709,9 @@ async function playLetter(i, token){
   } else {
     await wait(3800, token);
   }
+  if(token !== runToken) return;
+  // now let the child trace the letter themselves with a finger
+  if(practiceOn){ await traceTurn(i, token); }
 }
 
 async function runShow(){
@@ -671,6 +767,9 @@ document.getElementById("voiceBtn").addEventListener("click", e=>{
 });
 document.getElementById("soundBtn").addEventListener("click", e=>{
   soundOn = !soundOn; e.currentTarget.setAttribute("aria-pressed", String(soundOn));
+});
+document.getElementById("practiceBtn").addEventListener("click", e=>{
+  practiceOn = !practiceOn; e.currentTarget.setAttribute("aria-pressed", String(practiceOn));
 });
 
 document.getElementById("startBtn").addEventListener("click", ()=>{
