@@ -270,6 +270,15 @@ const SENTENCES = {
  Z:"The zebra has black and white stripes."
 };
 
+/* the letter SOUND (phonics), matched to each picture word — said rhythmically:
+   "aa, aa, apple!"  "buh, buh, ball!"  These are TTS-friendly spellings that
+   approximate each sound. */
+const PHONICS = {
+ A:"aa", B:"buh", C:"kuh", D:"duh", E:"eh", F:"fuh", G:"guh", H:"huh", I:"eye",
+ J:"juh", K:"kuh", L:"luh", M:"muh", N:"nuh", O:"aw", P:"puh", Q:"kwuh", R:"ruh",
+ S:"suh", T:"tuh", U:"uh", V:"vuh", W:"wuh", X:"zuh", Y:"yuh", Z:"zuh"
+};
+
 const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const crayonVars = ["--cherry","--tangerine","--grass","--sky","--grape"];
 const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -694,17 +703,18 @@ async function playLetter(i, token){
   doneSet.add(i);
   liveG.classList.add("dance");
   popSound();
+  const phon = PHONICS[L.ch] || L.ch;
   banner.innerHTML =
     `<span class="pop-in" style="color:${color}; font-size:1.6em">${L.ch}</span>` +
-    `<span class="pop-in">is for ${L.word}!</span>` +
+    `<span class="pop-in">${phon}, ${phon}, ${L.word}!</span>` +
     `<span class="big-emoji pop-in wiggle">${L.emoji}</span>`;
   cheer(); sprinkleStars();
   refreshChips();
-  // "A is for Apple." — then the example sentence spoken EXTRA slowly so a 3-year-old
-  // can follow it and repeat it — then a word of praise. Wait for it all to finish.
+  // rhythmic phonics — "aa, aa, apple!" — then the example sentence spoken EXTRA
+  // slowly so a 3-year-old can follow and repeat it — then a word of praise.
   const sentence = SENTENCES[L.ch] || "";
   if(voiceOn && ("speechSynthesis" in window)){
-    await sayWait(`${L.ch} is for ${L.word}.`, token);
+    await sayWait(`${phon}, ${phon}, ${L.word}!`, token, 0.75);   // sound it out to a little beat
     await wait(350, token);
     if(sentence){ await sayWait(sentence, token, 0.5); await wait(400, token); }   // extra-slow example sentence
     await sayWait(pick(PRAISES), token);
